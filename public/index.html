@@ -69,20 +69,10 @@
             margin-left: auto;
             margin-right: auto;
         }
-
-        .bookcontiner .headerdiv #logout{
-            margin-left: auto;
-            margin-right: 20px;
-            cursor: pointer;
-        }
-
-        .bookcontiner .headerdiv #addBook{
-            margin-left: 20px;
-            cursor: pointer;
-        }
         
         .bookcontiner .headerdiv h1{
             margin-left: auto;
+            margin-right: auto;
         }
         .usersList {
             display: flex;
@@ -121,7 +111,7 @@
 
         .books li {
             width: 235px;
-            height: 300px;
+            height: 200px;
             margin: 29px;
             display: flex;
             position: relative;
@@ -130,18 +120,31 @@
             border-radius: 10px;
         }
 
-        .books li .img {
-            width:232px;
-            height: 170px;
-            border-radius: 10px;
+        .books li div{
+            display: flex;
+            margin-bottom: 20px;
         }
 
-        .books h3{
+        .books li div img{
+            width: 50px;
+            height: 50px;
+            padding: 5px;
+            cursor: pointer;
+            border: solid 1px black;
+            border-radius: 50%;
+            margin: 10px;
+        }
+        .books li div span{
+            margin: 10px;
+            margin-left: 0;
+        }
+
+        /* .books h3{
             padding: 10px;
-        }
-        .books p{
+        } */
+        .books span{
             padding-left: 15px;
-        }
+        } 
 
         .fileinput{
             width: 100%;
@@ -169,13 +172,13 @@
                 <ul class="usersList">
                     <li class="user">
                         <label class="fileinput" for="inputFile">
-                            <span>Select file 1</span>
+                            <span>Select file</span>
                             <input type="file" name="inputFile" id="inputFile">
                         </label>
                     </li>
                     <li class="user">
                         <label class="fileinput" for="inputFile2">
-                            <span>Select file 1</span>
+                            <span>Append file</span>
                             <input type="file" name="inputFile2" id="inputFile2">
                         </label>
                     </li>
@@ -186,12 +189,22 @@
                
                 <div class="div">
                     <ul class="books">
+                        <!-- <li>
+                            <div>
+                                <a href="http://localhost:3000/download/1651142844835.pdf">
+                                    <img src="https://www.svgrepo.com/show/222005/down-arrow.svg" alt="pic">
+                                </a>
+                                <span>
+                                    <h3>Title</h3>
+                                    <p>1.23 MB</p>
+                                </span>
+                            </div>
+                            <span>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Ad, cupiditate.</span>                           
+                        </li> -->
                     </ul>
                 </div>
                 <div class="headerdiv">
-                    <h3 id="addBook"> <a href="./addBook">ADD</a></h3>
-                    <h1>BOOKS</h1>
-                    <h3 id="logout"> <a href="#">Logout</a></h3>
+                    <h1>Files</h1>
                 </div>      
             </div>
         </main>

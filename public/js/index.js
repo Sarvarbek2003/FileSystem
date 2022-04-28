@@ -1,9 +1,8 @@
 const bookslist = document.querySelector('.books')
-
-;(async ()=>{
-    let books = await fetch('http://localhost:3000/files')
+const backendApi = 'http://localhost:3000'
+;(async()=>{
+    let books = await fetch(backendApi+'/files')
     books = await books.json()
-
     renderBooks(books)
 })()
 
@@ -13,52 +12,36 @@ btn.onclick = async() => {
     formdata.append('files',inputFile2.files[0])
     formdata.append('fileName','File')
     formdata.append('title','File')
+    inputFile.value = null
 
-
-    await fetch('http://localhost:3000/cancat/add',{
+    let a = await fetch(backendApi+'/cancat/add',{
         method: 'POST',
         body: formdata
     })
-    // inputFile.value = null
+    if(a.status == 201){
+        let books = await fetch(backendApi+'/files')
+        books = await books.json()
+        renderBooks(books)
+    }
 }
 
 function renderBooks(books) {
     bookslist.innerHTML = null
-    console.log(books)
     if(!books.length) return
-    books.forEach((el,index) => {
-            const [li,img,h3,p,img2, img3, btn] = createElements('li','object','h3','p','img', 'img','button');
-            img.setAttribute('data', el.filePath);
-            img.setAttribute('class', 'img');
-            img.setAttribute('alt', 'pic');
-            img2.setAttribute('src', 'https://www.svgrepo.com/show/293410/delete-stop.svg')
-            img2.setAttribute('style', 'width: 20px; position: absolute; top:5px; left: 205px; cursor:pointer;')
-            img3.setAttribute('src', 'https://www.svgrepo.com/show/273992/check.svg')
-            img3.setAttribute('disabled', 'true')
-            img3.setAttribute('style', 'width: 20px; position: absolute; top:5px; left: 5px; cursor:pointer;')
-            btn.setAttribute('disabled', 'true')
-            btn.append(img3)
-            
-            img2.onclick = () => {
-                li.remove()
-            }
+    books.forEach( (el,index) => {
+            const [li,div,a,img,span,h3, p, span2] = createElements('li','div','a','img','span','h3', 'p','span');
+            img.setAttribute('src', 'https://www.svgrepo.com/show/222005/down-arrow.svg')
+            h3.textContent = el.fileName
+            p.textContent = (el.fileSize / 1024 / 1024).toFixed(3) + ' MB'
+            span2.textContent = el.title
+            a.setAttribute('href',backendApi+'/download'+el.filePath)
+            a.append(img)
 
-            h3.onkeyup = () => {
-                btn.removeAttribute('disabled', 'disabled')
-            }
-            p.onkeyup = () => {
-                btn.removeAttribute('disabled', 'disabled')
-            }
+            span.append(h3,p)
+            div.append(a,span)
+            li.append(div,span2)
+            bookslist.append(li)
 
-            btn.onclick = () => {
-                btn.setAttribute('disabled', 'true')
-            }
-
-            h3.textContent = el.fileName;
-            p.textContent = (el.fileSize / 1024 / 1024).toFixed(3) + ' MB';
-
-            li.append(img,h3,p,img2,btn);
-            bookslist.append(li);
     });
 }
 

@@ -1,7 +1,9 @@
-import { Controller, Get, Post, Body,UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Post,Res,Param, Body,UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from "@nestjs/platform-express";
 import { AppService } from './app.service';
 import { FileDto } from './dto';
+import { createReadStream } from 'fs';
+import { join } from 'path';
 
 
 @Controller()

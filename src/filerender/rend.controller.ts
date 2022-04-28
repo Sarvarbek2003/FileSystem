@@ -12,11 +12,11 @@ export class renderController {
   @Render('index.html')
    home(){}
 
-  // @Get("download/:filename")
-  // download(@Res() res, @Param() req) {
-  //   const filename = req.filename;
-  //   res.setHeader('Content-disposition', 'attachment; filename=' + filename);
-  //   const filestream = createReadStream(join(process.cwd(), 'files', filename));
-  //   filestream.pipe(res);
-  // }
+  @Get("download/:filename")
+  download(@Res() res, @Param() req) {
+    const filename = req.filename;
+    res.setHeader('Content-disposition', 'attachment; filename=' + filename);
+    const filestream = createReadStream(join(process.cwd(), 'files', filename));
+    filestream.pipe(res);
+  }
 }
