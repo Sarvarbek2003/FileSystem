@@ -1,12 +1,22 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Post, Body,UploadedFile, UseInterceptors } from '@nestjs/common';
+import { FileInterceptor } from "@nestjs/platform-express";
 import { AppService } from './app.service';
+import { FileDto } from './dto';
+
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(private appService: AppService) {}
 
-  @Get()
-  getHello() {
-    return this.appService.getHello();
+  @Get('files')
+  getFile() {
+    return this.appService.getFile();
   }
+  @Post('add/file')
+  @UseInterceptors(FileInterceptor('files'))
+    uploadFile(@UploadedFile() file: Express.Multer.File, @Body() dto: FileDto) { 
+        console.log(file)
+        // return this.appService.addFile(dto, file);
+    }
+
 }

@@ -16,8 +16,10 @@ model Files {
   updateAt  DateTime @updatedAt
 
   fileName  String 
-  fileSize  String
+  fileSize  Int
   filePath  String
   
   title     String
+
+  @@map("files")
 }
