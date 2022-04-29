@@ -1,36 +1,28 @@
-import { Controller, Post, UploadedFiles,ForbiddenException, UseInterceptors } from '@nestjs/common';
+import { Controller, Post, UploadedFiles,ForbiddenException, Body, UseInterceptors } from '@nestjs/common';
 import { CancatService } from './cancat.service';
 import { FilesInterceptor } from "@nestjs/platform-express";
 import { extname } from 'path'
+import { FileDto } from 'src/dto';
 
 @Controller('/cancat')
 export class CancatController {
     constructor(private cancatService: CancatService){}
     @Post('add')
     @UseInterceptors(FilesInterceptor('files'))
-    uploadFile(@UploadedFiles() files: Array<Express.Multer.File> ) {
+    uploadFile(@UploadedFiles() files: Array<Express.Multer.File>, @Body() dto: FileDto ) {
         if(!files.length)  throw new  ForbiddenException('File is required')
-        if( 
-            (extname(files[0]?.originalname) == '.xlsx' && 
-            extname(files[1]?.originalname) == '.xlsx') ||
-            (extname(files[0]?.originalname) == '.xls' && 
-            extname(files[1]?.originalname) == '.xls')
-        ){
-            return this.cancatService.xls(files)
+        let xlsx = files.map(el => extname(el.originalname) == '.xlsx' || extname(el.originalname) == '.xls')
+        let docx = files.map(el => extname(el.originalname) == '.docx' || extname(el.originalname) == '.doc')
+        let pdf = files.map(el => extname(el.originalname) == '.pdf')
+
+        if(!xlsx.includes(false)){
+            return this.cancatService.xls(files,dto)
         } 
-        // else if( 
-        //     (extname(files[0]?.originalname) == '.docx' && 
-        //     extname(files[1]?.originalname) == '.docx') ||
-        //     (extname(files[0]?.originalname) == '.doc' && 
-        //     extname(files[1]?.originalname) == '.doc')
-        // ){
+        // else if(!docx.includes(false)){
         //     return this.cancatService.doc(files)
         // } 
-        else if (
-            (extname(files[0]?.originalname) == '.pdf' && 
-            extname(files[1]?.originalname) == '.pdf')
-        ){
-            return this.cancatService.pdf(files)
+        else if (!pdf.includes(false)){
+            return this.cancatService.pdf(files,dto)
         } else {
             throw new  ForbiddenException('Fayl faqat .xlsx yoki .pdf formatlarda bo`lishi kerak')
         } 

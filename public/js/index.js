@@ -8,20 +8,23 @@ const backendApi = 'http://localhost:3000'
 
 btn.onclick = async() => {
     let formdata = new FormData()
-    formdata.append('files',inputFile.files[0])
-    formdata.append('files',inputFile2.files[0])
-    formdata.append('fileName','File')
-    formdata.append('title','File')
+    for (el of inputFile.files){
+        formdata.append('files',el)
+    }
+    formdata.append('fileName',fileName.value?.trim())
     inputFile.value = null
+    fileName.value = null
 
     let a = await fetch(backendApi+'/cancat/add',{
         method: 'POST',
         body: formdata
     })
     if(a.status == 201){
-        let books = await fetch(backendApi+'/files')
-        books = await books.json()
-        renderBooks(books)
+        setTimeout(async() => {
+            let books = await fetch(backendApi+'/files')
+            books = await books.json()
+            renderBooks(books)
+        }, 1000);
     }
 }
 
@@ -34,7 +37,7 @@ function renderBooks(books) {
             h3.textContent = el.fileName
             p.textContent = (el.fileSize / 1024 / 1024).toFixed(3) + ' MB'
             span2.textContent = el.title
-            a.setAttribute('href',backendApi+'/download'+el.filePath)
+            a.setAttribute('href',backendApi+'/download?path='+el.filePath)
             a.append(img)
 
             span.append(h3,p)

@@ -82,7 +82,8 @@
         }
 
         .usersList li {
-            margin-bottom: 20px;
+            margin: 20px;
+            margin-top: 0px;
         }
 
         .user{  
@@ -160,6 +161,20 @@
             display: none;
         }
 
+        #fileName{
+            margin: 20px;
+            padding: 10px;
+            font-size: 20px;
+        }
+
+        #btn{
+            width: 30%;
+            padding: 5px;
+            margin-left: auto;
+            margin-right: auto;
+            background-color: rgb(60, 185, 44);
+        }
+
     </style>
 </head>
 <body>
@@ -170,16 +185,11 @@
                     <h1>Cancat</h1>
                 </div>
                 <ul class="usersList">
+                    <input id="fileName" type="text">
                     <li class="user">
                         <label class="fileinput" for="inputFile">
-                            <span>Select file</span>
-                            <input type="file" name="inputFile" id="inputFile">
-                        </label>
-                    </li>
-                    <li class="user">
-                        <label class="fileinput" for="inputFile2">
-                            <span>Append file</span>
-                            <input type="file" name="inputFile2" id="inputFile2">
+                            <span>Select files</span>
+                            <input type="file" name="inputFile" id="inputFile" accept=".xlsx, .xls, .pdf" multiple>
                         </label>
                     </li>
                 </ul>

@@ -1,4 +1,4 @@
-import { Controller,Get,Render, Res,UseGuards, Dependencies, Param} from "@nestjs/common";
+import { Controller,Get,Render, Res,UseGuards, Dependencies, Param, Query} from "@nestjs/common";
 import { renderService } from "./rend.service";
 import { createReadStream } from 'fs';
 import { join } from "path";
@@ -12,11 +12,11 @@ export class renderController {
   @Render('index.html')
    home(){}
 
-  @Get("download/:filename")
-  download(@Res() res, @Param() req) {
-    const filename = req.filename;
-    res.setHeader('Content-disposition', 'attachment; filename=' + filename);
-    const filestream = createReadStream(join(process.cwd(), 'files', filename));
+  @Get("download")
+  download(@Res() res, @Query() req) {
+    const path = req.path;
+    res.setHeader('Content-disposition', 'attachment; filename=' + path.split('/')[path.split('/').length - 1]);
+    const filestream = createReadStream(join(process.cwd(), 'files', path));
     filestream.pipe(res);
   }
 }

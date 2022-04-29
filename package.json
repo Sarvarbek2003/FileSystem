@@ -32,6 +32,7 @@
     "ejs": "^3.1.7",
     "fastify-static": "^4.6.1",
     "json-and-xlsx": "^2.1.2",
+    "node-xlsx": "^0.21.0",
     "officeparser": "^2.3.0",
     "pdf-lib": "^1.17.1",
     "prisma": "^3.12.0",

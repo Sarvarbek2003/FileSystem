@@ -1,34 +1,32 @@
 import { Injectable,ForbiddenException } from '@nestjs/common';
 import xlsx from 'node-xlsx';
 import { jsonToXlsx } from 'json-and-xlsx';
-import { writeFileSync,createWriteStream, readFileSync} from 'fs';
+import { writeFileSync } from 'fs';
 import { join, extname} from 'path';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PDFDocument } from 'pdf-lib'
+import { FileDto } from 'src/dto';
 
 @Injectable()
 export class CancatService {
     constructor(private prisma: PrismaService){}
-    async xls(files){  
+    async xls(files,dto:FileDto){  
         try {
             let filename = (new Date().getTime())+extname(files[0].originalname)
+            let array = files.map(el => xlsx.parse(el.buffer)[0]?.data).flat();
 
-            const data1 = xlsx.parse(files[0].buffer);
-            const data2 = xlsx.parse(files[1].buffer)
-
-            let data = [...data1[0]?.data, ...data2[0]?.data]
-            const output = jsonToXlsx.readAndGetBuffer(data);
+            const output = jsonToXlsx.readAndGetBuffer(array);
+            writeFileSync(join(process.cwd(), 'files','xlsx',filename),output)
 
             await this.prisma.files.create({
                 data: {
-                fileName: files[0].originalname,
-                filePath: '/'+filename,
-                fileSize: files[0].size + files[1].size,
-                title: `Column ${data.length}`
+                fileName: dto.fileName+extname(files[0].originalname),
+                filePath: '/xlsx/'+filename,
+                fileSize: Buffer.byteLength(output),
+                title: `Row ${array.length}`
                 }
             });
 
-            writeFileSync(join(process.cwd(), 'files',filename),output)
         } catch (error) {
             throw new  ForbiddenException('Error')
         }
@@ -36,10 +34,11 @@ export class CancatService {
     async doc(files){  
         /// ......
     }
-    async pdf(files){  
+    async pdf(files,dto:FileDto){  
         try{
             let filename = (new Date().getTime())+extname(files[0].originalname)
-            let pdfsToMerge = [files[0].buffer, files[1].buffer]
+            
+            let pdfsToMerge = files.map(el => el.buffer)
             const mergedPdf = await PDFDocument.create(); 
             let pages = 0
             for (const pdfBytes of pdfsToMerge) { 
@@ -54,14 +53,14 @@ export class CancatService {
             const buf = await mergedPdf.save();        
             await this.prisma.files.create({
                 data: {
-                fileName: files[0].originalname,
-                filePath: '/'+filename,
-                fileSize: files[0].size + files[1].size,
+                fileName: dto.fileName+extname(files[0].originalname),
+                filePath: '/pdf/'+filename,
+                fileSize: Buffer.byteLength(buf),
                 title: `Page ${pages}`
                 }
             });
 
-            writeFileSync(join(process.cwd(), 'files',filename),buf)
+            writeFileSync(join(process.cwd(), 'files','pdf',filename),buf)
         } catch(error){
             throw new  ForbiddenException('Error')
         }
