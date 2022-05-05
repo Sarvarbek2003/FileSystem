@@ -1,8 +1,7 @@
 const bookslist = document.querySelector('.books')
-const backendApi = 'http://localhost:3000'
+
 ;(async()=>{
-    let books = await fetch(backendApi+'/files')
-    books = await books.json()
+    let books = await req('/files','GET')
     renderBooks(books)
 })()
 
@@ -15,13 +14,10 @@ btn.onclick = async() => {
     inputFile.value = null
     fileName.value = null
 
-    let a = await fetch(backendApi+'/cancat/add',{
-        method: 'POST',
-        body: formdata
-    })
+    let a = await fetch('/cancat/add','POST',formdata)
     if(a.status == 201){
         setTimeout(async() => {
-            let books = await fetch(backendApi+'/files')
+            let books = await req('/files')
             books = await books.json()
             renderBooks(books)
         }, 1000);
@@ -34,10 +30,10 @@ function renderBooks(books) {
     books.forEach( (el,index) => {
             const [li,div,a,img,span,h3, p, span2] = createElements('li','div','a','img','span','h3', 'p','span');
             img.setAttribute('src', 'https://www.svgrepo.com/show/222005/down-arrow.svg')
-            h3.textContent = el.fileName
-            p.textContent = (el.fileSize / 1024 / 1024).toFixed(3) + ' MB'
-            span2.textContent = el.title
-            a.setAttribute('href',backendApi+'/download?path='+el.filePath)
+            h3.textContent = el.filename
+            p.textContent = (el.filesize / 1024 / 1024).toFixed(3) + ' MB'
+            span2.textContent = el.fileinfo
+            a.setAttribute('href',backendApi+'/download?path='+el.filepath)
             a.append(img)
 
             span.append(h3,p)
@@ -48,6 +44,3 @@ function renderBooks(books) {
     });
 }
 
-function createElements(...array) {
-    return array.map(el => document.createElement(el))
-}

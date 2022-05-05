@@ -5,7 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as argon from "argon2"; 
-import { appendFileSync, mkdirSync } from "fs";
+import { appendFileSync,existsSync, mkdirSync } from "fs";
 import { join } from 'path'
 
 
@@ -34,7 +34,7 @@ export class AuthService {
             mkdirSync('logs/'+dto.username);
             appendFileSync('logs/'+dto.username+'/log.txt', data, 'utf-8');
         
-            return this.signToken(user.userId, user.email)
+            return this.signToken(user.userId, user.username)
         } catch (error) {
             console.log(error.message)
             if(error instanceof PrismaClientKnownRequestError){
@@ -45,7 +45,7 @@ export class AuthService {
             throw new UnauthorizedException("Registration error")
         }
     }
-    async login(dto: AuthDto, req){
+    async login(dto, req){
         try {
             const user = await this.prisma.users.findUnique({
                 where: {
@@ -60,6 +60,9 @@ export class AuthService {
             let time = new Date(d).toLocaleString('uz-UZ')
 
             if(!password) {
+                if(!existsSync("logs/"+user.username)){
+                    mkdirSync("logs/"+user.username);
+                }
                 appendFileSync('logs/'+user.username+'/error.txt', '\n'+time+' '+ req.route.path+' Wrong password '+req.headers['user-agent'])
                 throw new UnauthorizedException("Wrong password");
             }

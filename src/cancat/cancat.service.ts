@@ -5,8 +5,9 @@ import { writeFileSync } from 'fs';
 import { join, extname} from 'path';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PDFDocument } from 'pdf-lib'
-import { FileDto } from 'src/dto';
-import { appendFileSync } from "fs";
+import { FileDto } from 'src/cancat/dto';
+import { appendFileSync, existsSync, mkdirSync} from "fs";
+
 let d = new Date()
 let time = new Date(d).toLocaleString('uz-UZ')
 
@@ -14,6 +15,8 @@ let time = new Date(d).toLocaleString('uz-UZ')
 export class CancatService {
     constructor(private prisma: PrismaService){}
     async xls(files,dto:FileDto,req){  
+        let d = new Date()
+        let time = new Date(d).toLocaleString('uz-UZ')
         try {
             let filename = (new Date().getTime())+extname(files[0].originalname)
             let array = files.map(el => xlsx.parse(el.buffer)[0]?.data).flat();
@@ -23,15 +26,23 @@ export class CancatService {
 
             await this.prisma.files.create({
                 data: {
-                    userId: req.user.userId,
+                    userId: req.user.sub,
                     filename: dto.fileName+extname(files[0].originalname),
                     filepath: '/xlsx/'+filename,
                     filesize: Buffer.byteLength(output),
                     fileinfo: `Row ${array.length}`
                 }
-            });
+            });  
+            if(!existsSync('logs/'+req.user['username'])){
+                mkdirSync('logs/'+req.user['username']);
+            }
+            appendFileSync('logs/'+req.user['username']+'/log.txt', '\n'+time+' '+req.route.path+' '+req.method+' xlsx cancat')
 
         } catch (error) {
+            if(!existsSync('logs/'+req.user['username'])){
+                mkdirSync('logs/'+req.user['username']);
+            }
+            appendFileSync('logs/'+req.user['username']+'/error.txt', '\n'+time+' '+req.route.path+' '+req.method+' '+error.message)
             throw new  ForbiddenException('Error')
         }
     }
@@ -57,16 +68,25 @@ export class CancatService {
             const buf = await mergedPdf.save();        
             await this.prisma.files.create({
                 data: {
-                    userId: req.users.userId,
+                    userId: req.user.sub,
                     filename: dto.fileName+extname(files[0].originalname),
                     filepath: '/pdf/'+filename,
                     filesize: Buffer.byteLength(buf),
                     fileinfo: `Page ${pages}`
                 }
             });
-
+            let d = new Date()
+            let time = new Date(d).toLocaleString('uz-UZ')
+            if(!existsSync('logs/'+req.user['username'])){
+                mkdirSync('logs/'+req.user['username']);
+            }
+            appendFileSync('logs/'+req.user['username']+'/log.txt', '\n'+time+' '+req.route.path+' '+req.method+' pdf cancat')
             writeFileSync(join(process.cwd(), 'files','pdf',filename),buf)
         } catch(error){
+            if(!existsSync('logs/'+req.user['username'])){
+                mkdirSync('logs/'+req.user['username']);
+            }
+            appendFileSync('logs/'+req.user['username']+'/error.txt', '\n'+time+' '+req.route.path+' '+req.method+' '+error.message)
             throw new  ForbiddenException('Error')
         }
     }

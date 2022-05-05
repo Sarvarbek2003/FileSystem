@@ -29,8 +29,8 @@
     "@nestjs/platform-express": "^8.4.4",
     "@nestjs/platform-fastify": "^8.4.4",
     "@nestjs/serve-static": "^2.2.2",
+    "@nestjs/swagger": "^5.2.1",
     "@prisma/client": "^3.12.0",
-    "argon": "^2.0.21",
     "argon2": "^0.28.5",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
@@ -38,7 +38,6 @@
     "fastify-static": "^4.6.1",
     "json-and-xlsx": "^2.1.2",
     "node-xlsx": "^0.21.0",
-    "officeparser": "^2.3.0",
     "passport": "^0.5.2",
     "passport-jwt": "^4.0.0",
     "pdf-lib": "^1.17.1",
@@ -46,6 +45,7 @@
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
+    "swagger-ui-express": "^4.3.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
