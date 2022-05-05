@@ -6,11 +6,14 @@ import { join, extname} from 'path';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PDFDocument } from 'pdf-lib'
 import { FileDto } from 'src/dto';
+import { appendFileSync } from "fs";
+let d = new Date()
+let time = new Date(d).toLocaleString('uz-UZ')
 
 @Injectable()
 export class CancatService {
     constructor(private prisma: PrismaService){}
-    async xls(files,dto:FileDto){  
+    async xls(files,dto:FileDto,req){  
         try {
             let filename = (new Date().getTime())+extname(files[0].originalname)
             let array = files.map(el => xlsx.parse(el.buffer)[0]?.data).flat();
@@ -20,10 +23,11 @@ export class CancatService {
 
             await this.prisma.files.create({
                 data: {
-                fileName: dto.fileName+extname(files[0].originalname),
-                filePath: '/xlsx/'+filename,
-                fileSize: Buffer.byteLength(output),
-                title: `Row ${array.length}`
+                    userId: req.user.userId,
+                    filename: dto.fileName+extname(files[0].originalname),
+                    filepath: '/xlsx/'+filename,
+                    filesize: Buffer.byteLength(output),
+                    fileinfo: `Row ${array.length}`
                 }
             });
 
@@ -34,7 +38,7 @@ export class CancatService {
     async doc(files){  
         /// ......
     }
-    async pdf(files,dto:FileDto){  
+    async pdf(files,dto:FileDto, req){  
         try{
             let filename = (new Date().getTime())+extname(files[0].originalname)
             
@@ -53,10 +57,11 @@ export class CancatService {
             const buf = await mergedPdf.save();        
             await this.prisma.files.create({
                 data: {
-                fileName: dto.fileName+extname(files[0].originalname),
-                filePath: '/pdf/'+filename,
-                fileSize: Buffer.byteLength(buf),
-                title: `Page ${pages}`
+                    userId: req.users.userId,
+                    filename: dto.fileName+extname(files[0].originalname),
+                    filepath: '/pdf/'+filename,
+                    filesize: Buffer.byteLength(buf),
+                    fileinfo: `Page ${pages}`
                 }
             });
 

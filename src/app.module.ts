@@ -6,9 +6,10 @@ import { PrismaModule } from './prisma/prisma.module';
 import { renderController } from './filerender/rend.controller';
 import { renderService } from './filerender/rend.service';
 import { CancatModule } from './cancat/cancat.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
-  imports: [PrismaModule, ConfigModule.forRoot({isGlobal: true}), CancatModule],
+  imports: [PrismaModule, ConfigModule.forRoot({isGlobal: true}), CancatModule, AuthModule],
   controllers: [AppController,renderController],
   providers: [AppService,renderService],
 })

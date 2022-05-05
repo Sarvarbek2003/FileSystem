@@ -17,6 +17,7 @@ async function bootstrap() {
     index: false,
     redirect: false
   })
+
   await app.listen(3000);
 }
 bootstrap();

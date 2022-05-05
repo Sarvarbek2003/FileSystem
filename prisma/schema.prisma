@@ -11,15 +11,27 @@ datasource db {
 }
 
 model Files {
-  id        Int @id  @default(autoincrement())
+  fileId    Int      @id @default(autoincrement())
+  userId    Int
+  users     Users    @relation(fields: [userId], references: [userId])
+  filename  String   @db.VarChar(15)
+  filepath  String  
+  filesize  Int  
+  fileinfo  String   @db.VarChar(200)
   createAt  DateTime @default(now())
   updateAt  DateTime @updatedAt
 
-  fileName  String 
-  fileSize  Int
-  filePath  String
-  
-  title     String
-
   @@map("files")
+}
+
+model Users {
+  userId    Int      @id @default(autoincrement()) 
+  username  String   @db.VarChar(15) @unique
+  password  String 
+  email     String   @unique
+  logpath   String
+  createAt  DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  files     Files[]
+  @@map("users")
 }

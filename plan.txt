@@ -1,0 +1,20 @@
+users {
+    userId id
+    username string [3,15]
+    password string [3,15]
+    email string 
+    logfile string
+    createAt Data
+    updateAt Data
+}
+
+files {
+    fileId id
+    userId ref(userid)
+    filename string [3, 15]
+    filepath string 
+    filesize int
+    fileinfo string
+    createAt Data
+}
+
