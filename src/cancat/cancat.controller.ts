@@ -6,7 +6,7 @@ import { extname } from 'path'
 import { FileDto } from 'src/cancat/dto';
 import { Request } from 'express';
 import { appendFileSync } from 'fs';
-import { ApiBearerAuth } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiConsumes, ApiBody } from "@nestjs/swagger";
 
 
 @Controller('/cancat')
@@ -15,6 +15,18 @@ export class CancatController {
     @Post('add')
     @UseGuards(AuthGuard('jwt'))
     @ApiBearerAuth('access_token')
+    @ApiConsumes('multipart/form-data')
+    @ApiBody({ 
+        schema: {
+        type: 'object',
+        properties: {
+            filename: {type:'String' },
+            file: {
+              type: 'string',
+              format: 'binary',
+            },
+          },
+      }, })
     @UseInterceptors(FilesInterceptor('files'))
     async uploadFile(@UploadedFiles() files: Array<Express.Multer.File>, @Body() dto: FileDto, @Req() req: Request ) {
         if(!files.length) {
