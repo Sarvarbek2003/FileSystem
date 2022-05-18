@@ -14,11 +14,10 @@ btn.onclick = async() => {
     inputFile.value = null
     fileName.value = null
 
-    let a = await fetch('/cancat/add','POST',formdata)
+    let a = await req('/cancat/add','POST',formdata)
     if(a.status == 201){
         setTimeout(async() => {
             let books = await req('/files')
-            books = await books.json()
             renderBooks(books)
         }, 1000);
     }

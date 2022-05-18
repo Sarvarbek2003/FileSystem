@@ -17,32 +17,39 @@ export class CancatService {
     async xls(files,dto:FileDto,req){  
         let d = new Date()
         let time = new Date(d).toLocaleString('uz-UZ')
+        let date = new Date(d).toLocaleDateString('uz-UZ');
+        date = date.split('/').join('-')
         try {
             let filename = (new Date().getTime())+extname(files[0].originalname)
             let array = files.map(el => xlsx.parse(el.buffer)[0]?.data).flat();
 
-            const output = jsonToXlsx.readAndGetBuffer(array);
-            writeFileSync(join(process.cwd(), 'files','xlsx',filename),output)
+            if(!existsSync('files/xlsx/'+date,)){
+                mkdirSync('files/xlsx/'+date);
+            }
 
+            const output = jsonToXlsx.readAndGetBuffer(array);
             await this.prisma.files.create({
                 data: {
                     userId: req.user.sub,
                     filename: dto.fileName+extname(files[0].originalname),
-                    filepath: '/xlsx/'+filename,
+                    filepath: '/xlsx/'+date+'/'+filename,
                     filesize: Buffer.byteLength(output),
                     fileinfo: `Row ${array.length}`
                 }
-            });  
+            });
+            
+            writeFileSync(join(process.cwd(), 'files','xlsx',date,filename),output)
+
             if(!existsSync('logs/'+req.user['username'])){
                 mkdirSync('logs/'+req.user['username']);
             }
-            appendFileSync('logs/'+req.user['username']+'/log.txt', '\n'+time+' '+req.route.path+' '+req.method+' xlsx cancat')
-
+            appendFileSync('logs/'+req.user['username']+'/log.txt', '\n'+time+' '+req.route.path+' '+req.method+' '+JSON.stringify(dto)+' xlsx cancat ---> ' + {status: 201, message: 'Created'})
+            return {status: 201, message: 'Created'}
         } catch (error) {
             if(!existsSync('logs/'+req.user['username'])){
                 mkdirSync('logs/'+req.user['username']);
             }
-            appendFileSync('logs/'+req.user['username']+'/error.txt', '\n'+time+' '+req.route.path+' '+req.method+' '+error.message)
+            appendFileSync('logs/'+req.user['username']+'/error.txt', '\n'+time+' '+req.route.path+' '+req.method+' '+JSON.stringify(dto)+' '+error.message)
             throw new  ForbiddenException('Error')
         }
     }
@@ -64,29 +71,36 @@ export class CancatService {
                     mergedPdf.addPage(page); 
                 }); 
             } 
-
+            let d = new Date()
+            let time = new Date(d).toLocaleString('uz-UZ');
+            let date = new Date(d).toLocaleDateString('uz-UZ');
+            date = date.split('/').join('-')
             const buf = await mergedPdf.save();        
             await this.prisma.files.create({
                 data: {
                     userId: req.user.sub,
                     filename: dto.fileName+extname(files[0].originalname),
-                    filepath: '/pdf/'+filename,
+                    filepath: '/pdf/'+date+'/'+filename,
                     filesize: Buffer.byteLength(buf),
                     fileinfo: `Page ${pages}`
                 }
             });
-            let d = new Date()
-            let time = new Date(d).toLocaleString('uz-UZ')
+           
             if(!existsSync('logs/'+req.user['username'])){
                 mkdirSync('logs/'+req.user['username']);
             }
-            appendFileSync('logs/'+req.user['username']+'/log.txt', '\n'+time+' '+req.route.path+' '+req.method+' pdf cancat')
-            writeFileSync(join(process.cwd(), 'files','pdf',filename),buf)
+            appendFileSync('logs/'+req.user['username']+'/log.txt', '\n'+time+' '+req.route.path+' '+req.method+' '+JSON.stringify(dto)+' '+' pdf cancat');
+            if(!existsSync('files/pdf/'+date,)){
+                mkdirSync('files/pdf/'+date);
+            }
+            writeFileSync(join(process.cwd(), 'files','pdf',date,filename),buf);
+
+            return {status: 201, message: 'Created'}
         } catch(error){
             if(!existsSync('logs/'+req.user['username'])){
                 mkdirSync('logs/'+req.user['username']);
             }
-            appendFileSync('logs/'+req.user['username']+'/error.txt', '\n'+time+' '+req.route.path+' '+req.method+' '+error.message)
+            appendFileSync('logs/'+req.user['username']+'/error.txt', '\n'+time+' '+req.route.path+' '+req.method+' '+JSON.stringify(dto)+' '+error.message)
             throw new  ForbiddenException('Error')
         }
     }

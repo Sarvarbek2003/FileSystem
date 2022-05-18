@@ -1,19 +1,17 @@
-import { Controller, Post,Req,UseGuards, UploadedFiles,ForbiddenException, Body, UseInterceptors } from '@nestjs/common';
+import { Controller, Post,Req,Next, UseGuards, UploadedFiles,ForbiddenException, Body, UseInterceptors } from '@nestjs/common';
 import { CancatService } from './cancat.service';
 import { AuthGuard } from "@nestjs/passport";
 import { FilesInterceptor } from "@nestjs/platform-express";
 import { extname } from 'path'
 import { FileDto } from 'src/cancat/dto';
-import { Request } from 'express';
+import { NextFunction, Request } from 'express';
 import { appendFileSync } from 'fs';
 import { ApiBearerAuth, ApiConsumes, ApiBody } from "@nestjs/swagger";
-
 
 @Controller('/cancat')
 export class CancatController {
     constructor(private cancatService: CancatService){}
     @Post('add')
-    @UseGuards(AuthGuard('jwt'))
     @ApiBearerAuth('access_token')
     @ApiConsumes('multipart/form-data')
     @ApiBody({ 
@@ -32,7 +30,7 @@ export class CancatController {
         if(!files.length) {
             let d = new Date()
             let time = new Date(d).toLocaleString('uz-UZ')
-            appendFileSync('logs/'+req.user['username']+'/error.txt', '\n'+time+' '+req.route.path+' '+req.method+' File is required')
+            appendFileSync('logs/'+req.user['username']+'/error.txt', '\n'+time+' '+req.route.path+' '+req.method+' '+JSON.stringify(dto)+' File is required')
             throw new  ForbiddenException('File is required')
         }
         let xlsx = files.map(el => extname(el.originalname) == '.xlsx' || extname(el.originalname) == '.xls')
@@ -49,7 +47,7 @@ export class CancatController {
         } else {
             let d = new Date()
             let time = new Date(d).toLocaleString('uz-UZ')
-            appendFileSync('logs/'+req.user['username']+'/error.txt', '\n'+time+' '+req.route.path+' '+req.method+' Fayl faqat .xlsx yoki .pdf formatlarda bo`lishi kerak')
+            appendFileSync('logs/'+req.user['username']+'/error.txt', '\n'+time+' '+req.route.path+' '+req.method+' '+JSON.stringify(dto)+' Fayl faqat .xlsx yoki .pdf formatlarda bo`lishi kerak')
             throw new  ForbiddenException('Fayl faqat .xlsx yoki .pdf formatlarda bo`lishi kerak')
         } 
     }
