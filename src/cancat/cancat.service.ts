@@ -7,13 +7,14 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { PDFDocument } from 'pdf-lib'
 import { FileDto } from 'src/cancat/dto';
 import { appendFileSync, existsSync, mkdirSync} from "fs";
+import { MyLogger } from 'src/logger/create-log';
 
 let d = new Date()
 let time = new Date(d).toLocaleString('uz-UZ')
 
 @Injectable()
 export class CancatService {
-    constructor(private prisma: PrismaService){}
+    constructor(private prisma: PrismaService, private logger: MyLogger){}
     async xls(files,dto:FileDto,req){  
         let d = new Date()
         let time = new Date(d).toLocaleString('uz-UZ')
@@ -38,19 +39,15 @@ export class CancatService {
                 }
             });
             
-            writeFileSync(join(process.cwd(), 'files','xlsx',date,filename),output)
+            let response = {status: 201, message: 'Created'}
 
-            if(!existsSync('logs/'+req.user['username'])){
-                mkdirSync('logs/'+req.user['username']);
-            }
-            appendFileSync('logs/'+req.user['username']+'/log.txt', '\n'+time+' '+req.route.path+' '+req.method+' '+JSON.stringify(dto)+' xlsx cancat ---> ' + {status: 201, message: 'Created'})
-            return {status: 201, message: 'Created'}
+            writeFileSync(join(process.cwd(), 'files','xlsx',date,filename),output)
+            this.logger.log(req,'xlsx cancat',response)
+            
+            return response
         } catch (error) {
-            if(!existsSync('logs/'+req.user['username'])){
-                mkdirSync('logs/'+req.user['username']);
-            }
-            appendFileSync('logs/'+req.user['username']+'/error.txt', '\n'+time+' '+req.route.path+' '+req.method+' '+JSON.stringify(dto)+' '+error.message)
-            throw new  ForbiddenException('Error')
+            this.logger.error(req, error)
+            throw new  ForbiddenException(error.message)
         }
     }
     async doc(files){  
@@ -85,23 +82,18 @@ export class CancatService {
                     fileinfo: `Page ${pages}`
                 }
             });
-           
-            if(!existsSync('logs/'+req.user['username'])){
-                mkdirSync('logs/'+req.user['username']);
-            }
-            appendFileSync('logs/'+req.user['username']+'/log.txt', '\n'+time+' '+req.route.path+' '+req.method+' '+JSON.stringify(dto)+' '+' pdf cancat');
+            let response = {status: 201, message: 'Created'}
+            this.logger.log(req, 'pdf cancat', response)
+            
             if(!existsSync('files/pdf/'+date,)){
                 mkdirSync('files/pdf/'+date);
             }
             writeFileSync(join(process.cwd(), 'files','pdf',date,filename),buf);
 
-            return {status: 201, message: 'Created'}
+            return response
         } catch(error){
-            if(!existsSync('logs/'+req.user['username'])){
-                mkdirSync('logs/'+req.user['username']);
-            }
-            appendFileSync('logs/'+req.user['username']+'/error.txt', '\n'+time+' '+req.route.path+' '+req.method+' '+JSON.stringify(dto)+' '+error.message)
-            throw new  ForbiddenException('Error')
+            this.logger.error(req, error)
+            throw new  ForbiddenException(error.message)
         }
     }
 }

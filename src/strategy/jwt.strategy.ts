@@ -1,17 +1,16 @@
 import { Injectable, UnauthorizedException ,NestMiddleware} from "@nestjs/common";
 import { Request, Response, NextFunction } from 'express';
-import { ConfigService } from "@nestjs/config";
-import { PassportStrategy } from "@nestjs/passport";
-import { Strategy, ExtractJwt } from "passport-jwt";
 import NodeRSA from 'encrypt-rsa';
 import { readFileSync } from "fs";
 import { join } from "path";
+import { PrismaService } from "src/prisma/prisma.service";
 const nodeRSA = new NodeRSA();
 
 
 @Injectable()
 export class LoggerMiddleware implements NestMiddleware {
-  use(req: Request, res: Response, next: NextFunction) {
+  constructor(private prismaService: PrismaService){}
+  async use(req: Request, res: Response, next: NextFunction) {
     try {
         let encryptedText = req.rawHeaders[req.rawHeaders.indexOf('Authorization') + 1]
         let privateKey = readFileSync(join(process.cwd(), 'privateKey.key'), 'utf-8').toString()
@@ -19,6 +18,9 @@ export class LoggerMiddleware implements NestMiddleware {
             text: encryptedText, 
             privateKey
         });
+        let user = await this.prismaService.users.findMany({ where:{userId: JSON.parse(decryptedText).sub}})
+        console.log(user)
+        // if(!user) throw new UnauthorizedException('Token invalid')
         req.user = JSON.parse(decryptedText)
         next()
     } catch (error) {

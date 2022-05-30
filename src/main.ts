@@ -5,11 +5,13 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { join } from 'path';
 import { AppModule } from './app.module';
 import { renderFile } from 'ejs'
-import NodeRSA from 'encrypt-rsa';
-import * as fs from 'fs';
+import * as session from 'express-session';
+import { generateSessionToken, validateSessionToken } from 'session-id-token'; 
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+
   app.enableCors()
   app.engine('html', renderFile)
   app.setBaseViewsDir(join(__dirname, '../public'))
@@ -32,7 +34,7 @@ async function bootstrap() {
         in: "Header"
       }, 'access_token')
       .build();
-      
+   
 
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('api',app,document);

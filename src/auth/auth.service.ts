@@ -8,6 +8,7 @@ import * as argon from "argon2";
 import { appendFileSync, writeFileSync, existsSync, mkdirSync, readFileSync } from "fs";
 import NodeRSA from 'encrypt-rsa';
 import { join } from 'path';
+import { MyLogger } from 'src/logger/create-log';
 const nodeRSA = new NodeRSA();
 // let { privateKey, publicKey } = nodeRSA.createPrivateAndPublicKeys()
 // writeFileSync('publicKey.key', publicKey)
@@ -18,7 +19,8 @@ export class AuthService {
     constructor(
         private prisma: PrismaService, 
         private jwt: JwtService,
-        private config: ConfigService
+        private config: ConfigService,
+        private log: MyLogger
         ){}
         async signup(dto: AuthDto, req){
             try {
@@ -32,11 +34,12 @@ export class AuthService {
                     logpath: 'logs/'+dto.username
                 }
             })
-            
             let d = new Date()
             let time = new Date(d).toLocaleString('uz-UZ')
             let data  = `${time} ${req.route.path} ${JSON.stringify(dto)} ${req.headers['user-agent']}`
-            mkdirSync('logs/'+dto.username);
+            if(!existsSync("logs/"+dto.username)){
+                mkdirSync('logs/'+dto.username);
+            }
             appendFileSync('logs/'+dto.username+'/log.txt', data, 'utf-8');
             
             const payload = {
@@ -77,7 +80,7 @@ export class AuthService {
             let d = new Date()
             let time = new Date(d).toLocaleString('uz-UZ')
 
-            if(!password) {
+            if(!password){
                 if(!existsSync("logs/"+user.username)){
                     mkdirSync("logs/"+user.username);
                 }
@@ -99,25 +102,8 @@ export class AuthService {
                 access_token: encryptedText,
             }
        } catch (error) {
-            throw new UnauthorizedException("Error");
+            throw new UnauthorizedException(error);
        }
     }
     
-    async signToken (userId: number, username: string): Promise<{ access_token: string, id: number }> {
-        const nodeRSA = new NodeRSA();
-       
-
-       
-        const secret = this.config.get('SEKRET_KEY')
-
-        const token = await this.jwt.signAsync({pa:'pa'},{
-            expiresIn: '15h',
-            secret: secret
-        })
-
-        return { 
-            id: userId,
-            access_token: token,
-        }
-    }
 }

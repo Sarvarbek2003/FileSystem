@@ -1,1 +1,0 @@
-14/05/2022, 10:15:13 /auth/signup {"username":"taxi","password":"1111","email":"taxiuz22@gamil.com"} Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.88 Safari/537.36
