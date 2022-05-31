@@ -12,15 +12,14 @@ export class LoggerMiddleware implements NestMiddleware {
   constructor(private prismaService: PrismaService){}
   async use(req: Request, res: Response, next: NextFunction) {
     try {
-        let encryptedText = req.rawHeaders[req.rawHeaders.indexOf('Authorization') + 1]
+        let encryptedText = req.rawHeaders[req.rawHeaders.indexOf('Authorization') + 1]?.split('Bearer')?.join('')
         let privateKey = readFileSync(join(process.cwd(), 'privateKey.key'), 'utf-8').toString()
         const decryptedText = nodeRSA.decryptStringWithRsaPrivateKey({ 
             text: encryptedText, 
             privateKey
         });
         let user = await this.prismaService.users.findMany({ where:{userId: JSON.parse(decryptedText).sub}})
-        console.log(user)
-        // if(!user) throw new UnauthorizedException('Token invalid')
+        if(!user) throw new UnauthorizedException('Token invalid')
         req.user = JSON.parse(decryptedText)
         next()
     } catch (error) {

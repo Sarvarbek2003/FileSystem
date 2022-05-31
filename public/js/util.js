@@ -3,7 +3,7 @@ let backendApi = 'http://localhost:3000'
 async function req (path, method, body) {
 
     let headers = {
-            "Authorization": window.localStorage.getItem('token')
+            "Authorization": 'Bearer '+window.localStorage.getItem('token')
         }
 
     if( !(body instanceof FormData) ) {
