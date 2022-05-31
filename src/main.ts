@@ -5,8 +5,6 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { join } from 'path';
 import { AppModule } from './app.module';
 import { renderFile } from 'ejs'
-import * as session from 'express-session';
-import { generateSessionToken, validateSessionToken } from 'session-id-token'; 
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
